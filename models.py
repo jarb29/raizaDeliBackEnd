@@ -38,6 +38,28 @@ class User(db.Model):
         }
 
 
+class Productos(db.Model):
+    __tablename__ = 'productos'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable = False)
+    avatar = db.Column(db.String(100), nullable = False, default = 'favicon.ico')
+    precio = db.Column(db.String(100), nullable = False)
+    categoria = db.Column(db.String(100), nullable = False)
+    descripcion = db.Column(db.String(500), nullable = False)
+
+
+    def __repr__(self):
+        return f"Productos('{self.nombre}', '{self.avatar}', '{self.precio}', '{self.descripcion }', '{self.categoria}')"
+
+    def serialize(self):
+        return {
+            "id":self.id,
+            "nombre": self.nombre,
+            "avatar": self.avatar,
+            "precio": self.precio,
+            "categoria":self.categoria,
+            "descripcion":self.descripcion,
+        }  
 
 
 

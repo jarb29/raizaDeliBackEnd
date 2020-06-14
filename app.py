@@ -45,18 +45,77 @@ manager.add_command("db", MigrateCommand)
 def root():
     return render_template('index.html')
 
+def allowed_file_images(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS_IMG
+
+
+
+@app.route('/api/tienda/<filename>')
+def uploaded_fil(filename):
+    return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], 'img/avatars'), filename)
+
+
+@app.route('/api/administrador', methods=['POST'])
+def producto():
+
+    nombre = request.form.get('nombreProducto', None)
+    description = request.form.get('descripcion', None)
+    precio = request.form.get('precio', None)
+    categoria = request.form.get('categoria', None)
+    file = request.files['avatar']
+
+  
+    if file:
+        if file.filename == '': 
+            return jsonify({"msg": "Agregar nombre a la foto"}), 400
+    if not nombre or nombre =='':
+        return jsonify({"msg": "Falta el nombre del producto"}), 400
+    if not description or description == '':
+        return jsonify({"msg": "Falta la description "}), 400
+    if not precio or precio == '':
+        return jsonify({"msg": "Falta el precio"}), 400
+
+    if not categoria or categoria == '':
+        return jsonify({"msg": "Falta la categoria"}), 400
+
+    if file and allowed_file_images(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], 'img/avatars'), filename))
+
+    usua = Productos.query.filter_by(nombre = nombre).first()
+   
+    if usua:
+        return jsonify({"msg": "EL producto ya existe"}), 400
+    usua = Productos()
+    usua.nombre = nombre 
+    usua.description = description
+    usua.precio = precio
+    usua.categoria = categoria
+
+    if file:
+        usua.avatar = filename
+
+    db.session.add(usua)
+    db.session.commit()
+    data = {
+        "Producto": usua.serialize()
+    }
+    return jsonify({'msg': 'Producto agregado exitosamente'}), 200
+
+
+
+
 
 @app.route("/api/loging", methods=['POST'])
 def login():
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
     if request.method == 'POST':
-        nombre = request.json.get('nombre', None)
         clave = request.json.get('clave', None)
         email = request.json.get('email', None)
 
-        if not nombre:
-            return jsonify({"msg": "Falta el nombre"}), 400
+
         if not email:
             return jsonify({"msg": "Falta el email"}), 400
         usua = User.query.filter_by(email = email).first()
@@ -121,24 +180,6 @@ def register():
         "Usuario": usua.serialize()
     }
     return jsonify(data),  200
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
