@@ -3,7 +3,7 @@ from flask import Flask, render_template, jsonify, request, redirect, send_from_
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_cors import CORS
-from models import db, User
+from models import db, User, Productos
 from flask_mail import Mail, Message
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token, get_jwt_identity)
@@ -60,7 +60,7 @@ def uploaded_fil(filename):
 def producto():
 
     nombre = request.form.get('nombreProducto', None)
-    description = request.form.get('descripcion', None)
+    descripcion= request.form.get('descripcion', None)
     precio = request.form.get('precio', None)
     categoria = request.form.get('categoria', None)
     file = request.files['avatar']
@@ -71,8 +71,8 @@ def producto():
             return jsonify({"msg": "Agregar nombre a la foto"}), 400
     if not nombre or nombre =='':
         return jsonify({"msg": "Falta el nombre del producto"}), 400
-    if not description or description == '':
-        return jsonify({"msg": "Falta la description "}), 400
+    if not descripcion or descripcion == '':
+        return jsonify({"msg": "Falta la descripcion "}), 400
     if not precio or precio == '':
         return jsonify({"msg": "Falta el precio"}), 400
 
@@ -89,7 +89,7 @@ def producto():
         return jsonify({"msg": "EL producto ya existe"}), 400
     usua = Productos()
     usua.nombre = nombre 
-    usua.description = description
+    usua.descripcion = descripcion
     usua.precio = precio
     usua.categoria = categoria
 
