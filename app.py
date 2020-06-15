@@ -51,11 +51,6 @@ def allowed_file_images(filename):
 
 
 
-@app.route('/api/tienda/<filename>')
-def uploaded_fil(filename):
-    return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], 'img/avatars'), filename)
-
-
 @app.route('/api/administrador', methods=['POST'])
 def producto():
 
@@ -104,7 +99,16 @@ def producto():
     return jsonify({'msg': 'Producto agregado exitosamente'}), 200
 
 
+@app.route('/api/tienda/', methods=['GET'])
+def tiendaSeleccionada():
+    listaProductos = Productos.query.filter_by(categoria='torta').all()
+    listaProductos = list(map(lambda listaProductos: listaProductos.serialize(), listaProductos))
+    return jsonify(listaProductos), 200
 
+
+@app.route('/api/tienda/<filename>')
+def uploaded_fil(filename):
+    return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], 'img/avatars'), filename)
 
 
 @app.route("/api/loging", methods=['POST'])
