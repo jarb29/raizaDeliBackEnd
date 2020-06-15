@@ -3,7 +3,7 @@ from flask import Flask, render_template, jsonify, request, redirect, send_from_
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_cors import CORS
-from models import db, User, Productos
+from models import db, User, Productos, Factura, Detallefactura
 from flask_mail import Mail, Message
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token, get_jwt_identity)
@@ -107,6 +107,18 @@ def tiendaSeleccionada():
 
 
 @app.route('/api/tienda/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], 'img/avatars'), filename)
+
+
+@app.route('/api/salsas/', methods=['GET'])
+def tiendaSeleccionad():
+    listaProductos = Productos.query.filter_by(categoria='salsas').all()
+    listaProductos = list(map(lambda listaProductos: listaProductos.serialize(), listaProductos))
+    return jsonify(listaProductos), 200
+
+
+@app.route('/api/salsas/<filename>')
 def uploaded_fil(filename):
     return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], 'img/avatars'), filename)
 
@@ -184,6 +196,57 @@ def register():
         "Usuario": usua.serialize()
     }
     return jsonify(data),  200
+
+
+
+@app.route('/api/checkout', methods=['PUT'])
+def checkout():
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    ItemCompradoId= request.json.get('ItemProductoCompradoId', None)
+    CantidaProductoComprado = request.json.get('CantidaProductoComprado', None)
+    precioProductoSeleccionado = request.json.get('precioProductoSeleccionado', None)
+    usuario_id = request.json.get('usuario_id', None)
+    totalFactura = request.json.get('totalFactura', None)
+    usuarioActual = request.json.get('usuarioActual', None)
+    print(usuario_id)
+
+ 
+    email = User.query.filter_by(id = usuario_id).first()
+    print(email)
+    productos = Productos.query.filter(Productos.id.in_(ItemCompradoId)).all()
+
+
+    usua = Factura()
+    usua.usuario_factura_id = usuario_id
+    usua.total = totalFactura
+    db.session.add(usua)
+    db.session.commit()
+       
+
+
+
+    factura_id = Factura.query.order_by(Factura.id.desc()).first().id
+
+    i=0
+    for prod in productos:
+        usua = Detallefactura()
+        usua.productos_comprados = int(CantidaProductoComprado[i])
+        usua.factura_id= factura_id
+        usua.producto_id = int(ItemCompradoId[i])
+        usua.precio = int(precioProductoSeleccionado[i])
+        db.session.add(usua)
+        db.session.commit()
+        i=i+1
+    
+    # html = render_template('email-compraProductos.html', users=totalProductosComprados)
+    # send_mail("Compra", "jarb29@gmail.com", email, html)
+    # html = render_template('email-ProductosComprados.html', usuarioactual = usuarioActual, users=totalProductosComprados)
+    # send_mail("Productos comprados", "jarb29@gmail.com", emailTiendaSeleccionada, html)
+    
+    return jsonify({'msg': 'Producto encargados exitamente en breve recibira un email con el detalle'}), 200
+
 
 
 

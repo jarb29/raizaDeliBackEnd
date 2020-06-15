@@ -23,6 +23,7 @@ class User(db.Model):
     apellido = db.Column(db.String(100), nullable = False)
     telefono = db.Column(db.String(100), nullable = False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    
 
     def __repr__(self):
         return f"usuarios('{self.nombre }', '{self.email}', '{self.clave}', '{self.apellido}', '{self.telefono}', '{self.date_created}')"
@@ -46,6 +47,7 @@ class Productos(db.Model):
     precio = db.Column(db.String(100), nullable = False)
     categoria = db.Column(db.String(100), nullable = False)
     descripcion = db.Column(db.String(500), nullable = False)
+    
 
 
     def __repr__(self):
@@ -63,3 +65,40 @@ class Productos(db.Model):
 
 
 
+class Factura(db.Model):
+    __tablename__ = 'factura'
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_factura_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    total = db.Column(db.String(100), nullable = False)
+
+    def __repr__(self):
+        return f"{self.id}"
+
+    def serialize(self):
+        return {
+            "id": self.id,
+             "usuario": self.usuario,
+             "factura_detalle": self.factura_detalle,
+             "total": self.total,
+        }  
+
+
+class Detallefactura(db.Model):
+    __tablename__ = 'detallefactura'
+    id = db.Column(db.Integer, primary_key=True)
+    productos_comprados = db.Column(db.String(100), nullable = False)
+    factura_id = db.Column(db.String(100), db.ForeignKey('factura.id'))
+    producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=False)
+    precio = db.Column(db.String(100), nullable = False)
+
+    def __repr__(self):
+        return f"Detallefactura('{self.id}')"
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "productos_comprados": self.productos_comprados,
+            "factura_id": self.factura_id,
+            "producto_id": self.producto_id ,
+            "precio:": self.precio,
+        }  
