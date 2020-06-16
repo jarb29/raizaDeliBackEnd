@@ -51,7 +51,7 @@ def allowed_file_images(filename):
 
 
 
-@app.route('/api/administrador', methods=['POST'])
+@app.route('/api/admi/administrador', methods=['POST'])
 def producto():
 
     nombre = request.form.get('nombreProducto', None)
@@ -99,31 +99,31 @@ def producto():
     return jsonify({'msg': 'Producto agregado exitosamente'}), 200
 
 
-@app.route('/api/tienda/', methods=['GET'])
+@app.route('/api/tienda/tienda/', methods=['GET'])
 def tiendaSeleccionada():
     listaProductos = Productos.query.filter_by(categoria='torta').all()
     listaProductos = list(map(lambda listaProductos: listaProductos.serialize(), listaProductos))
     return jsonify(listaProductos), 200
 
 
-@app.route('/api/tienda/<filename>')
+@app.route('/api/tienda/tienda/<filename>')
 def uploaded_file(filename):
     return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], 'img/avatars'), filename)
 
 
-@app.route('/api/salsas/', methods=['GET'])
+@app.route('/api/tienda/salsas/', methods=['GET'])
 def tiendaSeleccionad():
     listaProductos = Productos.query.filter_by(categoria='salsas').all()
     listaProductos = list(map(lambda listaProductos: listaProductos.serialize(), listaProductos))
     return jsonify(listaProductos), 200
 
 
-@app.route('/api/salsas/<filename>')
+@app.route('/api/tienda/salsas/<filename>')
 def uploaded_fil(filename):
     return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], 'img/avatars'), filename)
 
 
-@app.route("/api/loging", methods=['POST'])
+@app.route("/api/tienda/loging", methods=['POST'])
 def login():
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
@@ -153,7 +153,7 @@ def login():
 
 
 
-@app.route('/api/register', methods=['POST'])
+@app.route('/api/tienda/register', methods=['POST'])
 def register():
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
@@ -199,7 +199,7 @@ def register():
 
 
 
-@app.route('/api/checkout', methods=['PUT'])
+@app.route('/api/tienda/checkout', methods=['PUT'])
 def checkout():
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
