@@ -3,7 +3,7 @@ from flask import Flask, render_template, jsonify, request, redirect, send_from_
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_cors import CORS
-from models import db, User, Productos, Factura, Detallefactura
+from models import db, User, Productos, Factura, Detallefactura, UserAdmini
 from flask_mail import Mail, Message
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token, get_jwt_identity)
@@ -144,11 +144,40 @@ def login():
             access_token = create_access_token(identity = usua.nombre)
             data = {
                 "access_token": access_token,
-                "Usuario": usua.serialize()
+                "tienda": usua.serialize()
             }
             return jsonify(data), 200
         else:
             return jsonify({"msg": "email/ clave errados favor verificar"}), 401
+
+@app.route("/api/admini/loging", methods=['POST'])
+def loginAdmi():
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+    if request.method == 'POST':
+        clave = request.json.get('clave', None)
+        email = request.json.get('email', None)
+
+
+        if not email:
+            return jsonify({"msg": "Falta el email"}), 400
+        usua = UserAdmini.query.filter_by(email = email).first()
+        if not usua:
+            return jsonify({"msg": "Usuario no existe"}), 400
+        if not clave:
+            return jsonify({"msg": "Falta la clave"}), 400
+
+        if bcrypt.check_password_hash(usua.clave, clave):
+            access_token = create_access_token(identity = usua.nombre)
+            data = {
+                "access_token": access_token,
+                "administrador": usua.serialize()
+            }
+            return jsonify(data), 200
+        else:
+            return jsonify({"msg": "email/ clave errados favor verificar"}), 401
+
+
 
 
 
@@ -188,6 +217,49 @@ def register():
     db.session.commit()
     # html = render_template('email-registerCliente.html', user=usua)
     # send_mail("Registro", "jarb29@gmail.com", usua.email, html)
+
+    access_token = create_access_token(identity=usua.email)
+     
+    data = {
+        "access_token": access_token,
+        "Usuario": usua.serialize()
+    }
+    return jsonify(data),  200
+
+@app.route('/api/administrador/register', methods=['POST'])
+def registerAdminis():
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    nombre = request.json.get('nombre', None)
+    clave = request.json.get('clave', None)
+    email = request.json.get('email', None)
+    apellido = request.json.get('apellido', None)
+    telefono = request.json.get('telefono', None)
+
+    if not nombre:
+        return jsonify({"msg": "Falta el nombre"}), 400
+    if not email:
+        return jsonify({"msg": "Falta el email"}), 400
+    if not apellido:
+        return jsonify({"msg": "Falta el apellido"}), 400
+    if not telefono:
+        return jsonify({"msg": "Falta el telefono"}), 400
+    usua = UserAdmini.query.filter_by(email = email).first()
+    if usua:
+        return jsonify({"msg": "Usuario existe por favor elegir diferente Email"}), 400
+    if not clave:
+        return jsonify({"msg": "Falta la clave"}), 400
+
+    usua = UserAdmini()
+    usua.nombre = nombre
+    usua.clave = bcrypt.generate_password_hash(clave) 
+    usua.email = email
+    usua.apellido = apellido
+    usua.telefono = telefono
+    db.session.add(usua)
+    db.session.commit()
+
 
     access_token = create_access_token(identity=usua.email)
      
