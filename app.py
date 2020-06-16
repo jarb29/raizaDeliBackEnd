@@ -282,32 +282,25 @@ def checkout():
     usuario_id = request.json.get('usuario_id', None)
     totalFactura = request.json.get('totalFactura', None)
     usuarioActual = request.json.get('usuarioActual', None)
-    print(usuario_id)
-
- 
-    email = User.query.filter_by(id = usuario_id).first()
-    print(email)
-    productos = Productos.query.filter(Productos.id.in_(ItemCompradoId)).all()
-
+    email = User.query.filter_by(id = usuario_id).first().email
+    usuario = User.query.filter_by(id = usuario_id).first()
 
     usua = Factura()
-    usua.usuario_factura_id = usuario_id
     usua.total = totalFactura
+    usua.comprador = usuario 
     db.session.add(usua)
     db.session.commit()
        
 
-
-
-    factura_id = Factura.query.order_by(Factura.id.desc()).first().id
-
+     #factura_id =Factura.query.filter_by(id = usuario_id).first()
+    factura_id = Factura.query.order_by(Factura.id.desc()).first()
+    productos = Productos.query.filter(Productos.id.in_(ItemCompradoId)).all()
     i=0
     for prod in productos:
         usua = Detallefactura()
-        usua.productos_comprados = int(CantidaProductoComprado[i])
-        usua.factura_id= factura_id
-        usua.producto_id = int(ItemCompradoId[i])
-        usua.precio = int(precioProductoSeleccionado[i])
+        usua.productos_comprados = prod
+        usua.productos_facturados= factura_id
+        usua.cantidad_producto_comprado = int(CantidaProductoComprado[i])
         db.session.add(usua)
         db.session.commit()
         i=i+1
@@ -321,7 +314,13 @@ def checkout():
 
 
 
-
+@app.route('/api/admi/orders', methods=['GET'])
+def orders():
+    listaFacturas = Factura.query.all()
+    listaFacturas = list(map(lambda listaFacturas: listaFacturas.serialize(), listaFacturas))
+    listaDetalleFactura = Detallefactura.query.all()
+    listaDetalleFactura = list(map(lambda listaDetalleFactura: listaDetalleFactura.serialize(), listaDetalleFactura))
+    return jsonify(listaFacturas, listaDetalleFactura), 200
 
 
 

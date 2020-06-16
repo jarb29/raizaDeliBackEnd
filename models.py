@@ -15,13 +15,14 @@ db = SQLAlchemy(app)
 
 
 class User(db.Model):
-    _tablename_ = 'users'
+    _tablename_ = 'user'
     id = db.Column(db.Integer, primary_key = True)
     nombre = db.Column(db.String(100), nullable = False)
     email = db.Column(db.String(100), unique = True, nullable = False)
     clave = db.Column(db.String(100), nullable = False)
     apellido = db.Column(db.String(100), nullable = False)
     telefono = db.Column(db.String(100), nullable = False)
+    factura_detalle = db.relationship('Factura',  backref= 'comprador', lazy = True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     
 
@@ -71,6 +72,8 @@ class Productos(db.Model):
     precio = db.Column(db.String(100), nullable = False)
     categoria = db.Column(db.String(100), nullable = False)
     descripcion = db.Column(db.String(500), nullable = False)
+    producto_detalle = db.relationship('Detallefactura',  backref= 'productos_comprados', lazy = True)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
     
 
 
@@ -92,17 +95,18 @@ class Productos(db.Model):
 class Factura(db.Model):
     __tablename__ = 'factura'
     id = db.Column(db.Integer, primary_key=True)
-    usuario_factura_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    usuariof_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     total = db.Column(db.String(100), nullable = False)
+    factura_detalle = db.relationship('Detallefactura',  backref= 'productos_facturados', lazy = True)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f"{self.id}"
+        return f"factura('{self.id}', '{self.total}', '{self.date_created}')"
 
     def serialize(self):
         return {
             "id": self.id,
-             "usuario": self.usuario,
-             "factura_detalle": self.factura_detalle,
+             "usuario_id": self.person_id,
              "total": self.total,
         }  
 
@@ -110,10 +114,10 @@ class Factura(db.Model):
 class Detallefactura(db.Model):
     __tablename__ = 'detallefactura'
     id = db.Column(db.Integer, primary_key=True)
-    productos_comprados = db.Column(db.String(100), nullable = False)
-    factura_id = db.Column(db.String(100), db.ForeignKey('factura.id'))
-    producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=False)
-    precio = db.Column(db.String(100), nullable = False)
+    facturaf_id = db.Column(db.String(100), db.ForeignKey('factura.id'))
+    productof_id = db.Column(db.Integer, db.ForeignKey('productos.id'))
+    cantidad_producto_comprado = db.Column(db.String(100))
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return f"Detallefactura('{self.id}')"
@@ -123,6 +127,5 @@ class Detallefactura(db.Model):
             "id": self.id,
             "productos_comprados": self.productos_comprados,
             "factura_id": self.factura_id,
-            "producto_id": self.producto_id ,
-            "precio:": self.precio,
+            "producto_id": self.productof_id ,
         }  
