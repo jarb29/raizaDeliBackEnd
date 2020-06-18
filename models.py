@@ -105,10 +105,15 @@ class Factura(db.Model):
 
     def serialize(self):
         return {
-            "id": self.id,
+            "factura_id": self.id,
              "usuario_id": self.comprador.id,
+             "usuario_nombre": self.comprador.nombre,
+             "usuario_email": self.comprador.email,
+             "usuario_apellido": self.comprador.apellido,
+             "usuario_telefono": self.comprador.telefono,
+             "dia_usuario_abrio_cuenta": self.comprador.date_created,
              "total": self.total,
-             "date_created ": self.date_created ,
+             "factura_creada": self.date_created ,
         }  
 
 
@@ -125,9 +130,15 @@ class Detallefactura(db.Model):
 
     def serialize(self):
         return {
-            "id": self.id,
-            "productos_comprados": self.productos_facturados.id,
-            "productos_en_produ": self.productos_comprados.id,
+            "detalle_factura_id": self.id,
+            "productos_uduario_id": self.productos_facturados.usuariof_id,
+            "factura_id": self.productos_facturados.id,
+            "total_factura": self.productos_facturados.total,
+            "productos_id": self.productos_comprados.id,
+            "producto_nombre": self.productos_comprados.nombre,
+            "productos_precio": self.productos_comprados.precio,
+            "productos_categoria": self.productos_comprados.categoria,
+            "productos_descripcion": self.productos_comprados.descripcion,
             "cantidad_producto_comprado": self.cantidad_producto_comprado,
             "date_created": self.date_created,
         }  
