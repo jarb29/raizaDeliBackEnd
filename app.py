@@ -340,9 +340,24 @@ def editarProducto(id):
 def productos(id):
     if request.method == 'GET':
         factura_id = Factura.query.filter_by(usuariof_id = id).all()
+
+       
         listaFacturas = list(map(lambda listaProductos: listaProductos.serialize(), factura_id))
-        detallesFacturas = list(map(lambda X: Detallefactura.query.filter_by(facturaf_id  = X.id).first().serialize(), factura_id))
-        return jsonify(listaFacturas, detallesFacturas), 200
+
+        detallesFacturas = list(map(lambda X: Detallefactura.query.filter_by(facturaf_id  = X.id).all(), factura_id))
+        
+        # print(detallesFacturas, "para ver que es")
+        detallesPorFactura = []
+
+        for each in listaFacturas:
+            value = Detallefactura.query.filter_by(facturaf_id = each['factura_id']).all()
+            for each in value:
+                val = each.serialize()
+                detallesPorFactura.append(val)
+        
+        print(detallesPorFactura)
+
+        return jsonify(listaFacturas, detallesPorFactura), 200
 
 
 

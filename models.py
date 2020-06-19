@@ -128,7 +128,7 @@ class Detallefactura(db.Model):
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f"Detallefactura('{self.id}')"
+        return f"Detallefactura('{self.id}', '{self.facturaf_id}', '{self.productof_id}', '{self.cantidad_producto_comprado}', '{self.date_created}')"
 
     def serialize(self):
         return {
