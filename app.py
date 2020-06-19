@@ -84,6 +84,7 @@ def producto():
         return jsonify({"msg": "EL producto ya existe"}), 400
     usua = Productos()
     usua.nombre = nombre 
+    usua.status = 'active'
     usua.descripcion = descripcion
     usua.precio = precio
     usua.categoria = categoria
@@ -323,7 +324,15 @@ def orders():
     return jsonify(listaFacturas, listaDetalleFactura), 200
 
 
+@app.route('/api/editar/producto/<int:id>', methods=['PUT'])
+def editarProducto(id):
+    editProducto = Productos.query.get(id)
 
+    status= request.json.get('newStatus', None)
+    editProducto.status = status
+    db.session.commit()
+
+    return ({'msg': 'Producto actualizado'})  
 
 
 

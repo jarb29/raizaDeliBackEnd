@@ -71,7 +71,8 @@ class Productos(db.Model):
     avatar = db.Column(db.String(100), nullable = False, default = 'favicon.ico')
     precio = db.Column(db.String(100), nullable = False)
     categoria = db.Column(db.String(100), nullable = False)
-    descripcion = db.Column(db.String(500), nullable = False)
+    descripcion = db.Column(db.String(500), nullable = False, default = 'active')
+    status = db.Column(db.String(100), nullable = False)
     producto_detalle = db.relationship('Detallefactura',  backref= 'productos_comprados', lazy = True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -86,6 +87,7 @@ class Productos(db.Model):
             "nombre": self.nombre,
             "avatar": self.avatar,
             "precio": self.precio,
+            "status": self.status,
             "categoria":self.categoria,
             "descripcion":self.descripcion,
         }  
