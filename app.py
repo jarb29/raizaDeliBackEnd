@@ -339,9 +339,10 @@ def editarProducto(id):
 @app.route('/api/admin/<int:id>', methods=['GET', 'DELETE'])
 def productos(id):
     if request.method == 'GET':
-        listaFactura = Factura.query.filter_by(usuariof_id = id).all()
-        listaProductos = list(map(lambda listaProductos: listaFactura.serialize(), listaFactura))
-        return jsonify(listaProductos), 200
+        factura_id = Factura.query.filter_by(usuariof_id = id).all()
+        listaFacturas = list(map(lambda listaProductos: listaProductos.serialize(), factura_id))
+        detallesFacturas = list(map(lambda X: Detallefactura.query.filter_by(facturaf_id  = X.id).first().serialize(), factura_id))
+        return jsonify(listaFacturas, detallesFacturas), 200
 
 
 
