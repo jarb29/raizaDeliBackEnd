@@ -145,7 +145,7 @@ def login():
             access_token = create_access_token(identity = usua.nombre)
             data = {
                 "access_token": access_token,
-                "tienda": usua.serialize()
+                "Usuario": usua.serialize()
             }
             return jsonify(data), 200
         else:
@@ -291,6 +291,7 @@ def checkout():
     usua.comprador = usuario 
     db.session.add(usua)
     db.session.commit()
+    print(CantidaProductoComprado, "producto que se compro")
        
 
      #factura_id =Factura.query.filter_by(id = usuario_id).first()
