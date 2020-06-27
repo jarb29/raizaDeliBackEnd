@@ -9,7 +9,7 @@ from flask import Flask
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql:jarb29.mysql.pythonanywhere-services.com'
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 db = SQLAlchemy(app)
 
@@ -123,8 +123,8 @@ class Factura(db.Model):
 class Detallefactura(db.Model):
     __tablename__ = 'detallefactura'
     id = db.Column(db.Integer, primary_key=True)
-    facturaf_id = db.Column(db.String(100), db.ForeignKey('factura.id'))
-    productof_id = db.Column(db.Integer, db.ForeignKey('productos.id'))
+    facturaf_id = db.Column(db.Integer, db.ForeignKey('factura.id'), nullable=True)
+    productof_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=True)
     cantidad_producto_comprado = db.Column(db.String(100))
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 

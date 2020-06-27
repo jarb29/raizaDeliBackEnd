@@ -18,7 +18,8 @@ app = Flask(__name__)
 app.url_map.strict_slashes = False
 app.config['DEBUG'] = True
 app.config['ENV'] = 'development'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'dev.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://jarb29:Alexander29@servidor/jarb29.mysql.pythonanywhere-services.com'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'dev.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'super-secret-key'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -328,7 +329,6 @@ def orders():
 @app.route('/api/editar/producto/<int:id>', methods=['PUT'])
 def editarProducto(id):
     editProducto = Productos.query.get(id)
-
     status= request.json.get('newStatus', None)
     editProducto.status = status
     db.session.commit()
@@ -340,13 +340,8 @@ def editarProducto(id):
 def productos(id):
     if request.method == 'GET':
         factura_id = Factura.query.filter_by(usuariof_id = id).all()
-
-       
         listaFacturas = list(map(lambda listaProductos: listaProductos.serialize(), factura_id))
-
         detallesFacturas = list(map(lambda X: Detallefactura.query.filter_by(facturaf_id  = X.id).all(), factura_id))
-        
-        # print(detallesFacturas, "para ver que es")
         detallesPorFactura = []
 
         for each in listaFacturas:
@@ -354,21 +349,7 @@ def productos(id):
             for each in value:
                 val = each.serialize()
                 detallesPorFactura.append(val)
-        
-        print(detallesPorFactura)
-
         return jsonify(listaFacturas, detallesPorFactura), 200
-
-
-
-
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     manager.run()
