@@ -18,8 +18,8 @@ app = Flask(__name__)
 app.url_map.strict_slashes = False
 app.config['DEBUG'] = True
 app.config['ENV'] = 'development'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://jarb29:Alexander29@servidor/jarb29.mysql.pythonanywhere-services.com'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'dev.db')
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://jarb29:Alexander29@servidor/jarb29.mysql.pythonanywhere-services.com'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'dev.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'super-secret-key'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -27,8 +27,8 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_DEBUG'] = True
-app.config['MAIL_USERNAME'] = 'jarb29@gmail.com'
-app.config['MAIL_PASSWORD'] = 'Amesti2020'
+app.config['MAIL_USERNAME'] = 'raizasonlineshop@gmail.com'
+app.config['MAIL_PASSWORD'] = 'Bakery2020'
 
 
 JWTManager(app)
@@ -45,6 +45,13 @@ manager.add_command("db", MigrateCommand)
 @app.route('/')
 def root():
     return render_template('index.html')
+
+def send_mail(subject, sender, recipients, message):
+    msg = Message(subject,
+                  sender=sender,
+                  recipients=[recipients])
+    msg.html = message
+    mail.send(msg)
 
 def allowed_file_images(filename):
     return '.' in filename and \
@@ -292,8 +299,6 @@ def checkout():
     usua.comprador = usuario 
     db.session.add(usua)
     db.session.commit()
-    print(CantidaProductoComprado, "producto que se compro")
-       
 
      #factura_id =Factura.query.filter_by(id = usuario_id).first()
     factura_id = Factura.query.order_by(Factura.id.desc()).first()
@@ -308,12 +313,13 @@ def checkout():
         db.session.commit()
         i=i+1
     
-    # value = Detallefactura.query.filter_by(facturaf_id = each['factura_id']).all()
-    
-    # html = render_template('email-compraProductos.html', users=totalProductosComprados)
-    # send_mail("Compra", "jarb29@gmail.com", email, html)
-    # html = render_template('email-ProductosComprados.html', usuarioactual = usuarioActual, users=totalProductosComprados)
-    # send_mail("Productos comprados", "jarb29@gmail.com", emailTiendaSeleccionada, html)
+    listaDetalleFactura = Detallefactura.query.filter_by(facturaf_id = factura_id.id).all()
+    listaDetalleFactura = list(map(lambda listaDetalleFactura: listaDetalleFactura.serialize(), listaDetalleFactura))
+
+    html = render_template('email-compraProductos.html', users=listaDetalleFactura)
+    send_mail("Compra", "raizasonlineshop@gmail.com", email, html)
+    html = render_template('email-ProductosComprados.html', usuarioactual = usuarioActual, users=listaDetalleFactura)
+    send_mail("Productos comprados", "raizasonlineshop@gmail.com", "raizasonlineshop@gmail.com", html)
     
     return jsonify({'msg': 'Producto encargados exitamente en breve recibira un email con el detalle'}), 200
 
