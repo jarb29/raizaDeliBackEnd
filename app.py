@@ -308,6 +308,8 @@ def checkout():
         db.session.commit()
         i=i+1
     
+    # value = Detallefactura.query.filter_by(facturaf_id = each['factura_id']).all()
+    
     # html = render_template('email-compraProductos.html', users=totalProductosComprados)
     # send_mail("Compra", "jarb29@gmail.com", email, html)
     # html = render_template('email-ProductosComprados.html', usuarioactual = usuarioActual, users=totalProductosComprados)
