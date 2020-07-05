@@ -359,6 +359,44 @@ def productos(id):
                 detallesPorFactura.append(val)
         return jsonify(listaFacturas, detallesPorFactura), 200
 
+
+@app.route("/api/contacto", methods=['POST'])
+def contact():
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+    if request.method == 'POST':
+        nombre = request.json.get('nombre', None)
+        email = request.json.get('email', None)
+        celular = request.json.get('celular', None)
+        mensaje = request.json.get('mensaje', None)
+
+
+        if not email:
+            return jsonify({"msg": "Falta incluir el email"}), 400
+        if not nombre:
+            return jsonify({"msg": "Falta incluir el nombre"}), 400
+        if not celular:
+            return jsonify({"msg": "Falta el numero de celular"}), 400
+        if not mensaje:
+            return jsonify({"msg": "No agrego ningun mensaje"}), 400
+        
+        usua = User()
+        usua.nombre = nombre
+        usua.email = email
+        usua.celular = celular
+        usua.mensaje = mensaje
+
+        html = render_template('email-registerContact.html', user=usua)
+        send_mail("Contacto", "raizasonlineshop@gmail.com", "raizasonlineshop@gmail.com", html)
+
+
+        return jsonify({"success": "mensaje enviado"}), 400
+
+
+
+
+
+
 if __name__ == '__main__':
     manager.run()
 
